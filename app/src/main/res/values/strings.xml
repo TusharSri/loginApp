@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Amazon</string>
+    <string name="enter_your_email">Enter your email</string>
+    <string name="amazon_icon">amazon icon</string>
+    <string name="amazon_password">Amazon Password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="sign_in">Sign In</string>
+    <string name="dont_have_an_account">Dont have an Account?</string>
+    <string name="sign_up_here">Sign Up here!</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
