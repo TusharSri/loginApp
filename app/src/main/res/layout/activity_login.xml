@@ -1,17 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_image">
 
     <ScrollView
+        android:id="@+id/scrollview_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/backgroundColor">
 
         <RelativeLayout
+            android:id="@+id/relative_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <com.example.apple.amazon.Utils.SymmetricProgressBar
+                android:id="@+id/fake_action_bar_progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_weight="0" />
 
             <ImageView
                 android:id="@+id/icon_imageview"
@@ -22,44 +33,59 @@
                 android:contentDescription="@string/amazon_icon"
                 android:src="@drawable/amazon_white" />
 
-            <EditText
-                android:id="@+id/email_edittext"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_layout_username"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:layout_below="@+id/icon_imageview"
                 android:layout_margin="10dp"
-                android:maxLines="1"
-                android:inputType="textEmailAddress"
-                android:maxLength="30"
                 android:background="@drawable/round_corner_white_bg"
-                android:hint="@string/enter_your_email"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"/>
+                app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
 
+                <EditText
+                    android:id="@+id/email_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/enter_your_email"
+                    android:inputType="textEmailAddress"
+                    android:maxLength="30"
+                    android:maxLines="1"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp" />
 
-            <EditText
-                android:id="@+id/password_edittext"
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_layout_password"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_below="@+id/email_edittext"
+                android:layout_height="50dp"
+                android:layout_below="@+id/input_layout_username"
                 android:layout_margin="10dp"
-                android:maxLines="1"
-                android:inputType="textPassword"
-                android:maxLength="30"
                 android:background="@drawable/round_corner_white_bg"
-                android:hint="@string/amazon_password"
-                android:drawableRight="@drawable/show_password"
-                android:drawableEnd="@drawable/show_password"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"/>
+                app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout">
+
+                <EditText
+                    android:id="@+id/password_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/amazon_password"
+                    android:inputType="textPassword"
+                    android:maxLength="30"
+                    android:maxLines="1"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp" />
+
+            </android.support.design.widget.TextInputLayout>
 
             <TextView
                 android:id="@+id/forgot_pass_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignEnd="@id/email_edittext"
-                android:layout_alignRight="@id/email_edittext"
-                android:layout_below="@+id/password_edittext"
+                android:layout_alignEnd="@id/input_layout_username"
+                android:layout_alignRight="@id/input_layout_username"
+                android:layout_below="@+id/input_layout_password"
                 android:text="@string/forgot_password"
                 android:textColor="@android:color/white" />
 
@@ -70,8 +96,8 @@
                 android:layout_below="@+id/forgot_pass_textview"
                 android:layout_centerInParent="true"
                 android:layout_marginTop="60dp"
-                android:text="@string/sign_in"
                 android:background="@drawable/round_corner_orange_bg"
+                android:text="@string/sign_in"
                 android:textColor="@android:color/white" />
 
             <TextView
@@ -91,8 +117,8 @@
                 android:layout_below="@+id/dont_have_accout_textview"
                 android:layout_centerInParent="true"
                 android:layout_margin="5dp"
-                android:text="@string/sign_up_here"
                 android:background="@drawable/round_corner_blue_bg"
+                android:text="@string/sign_up_here"
                 android:textColor="@android:color/white" />
 
         </RelativeLayout>

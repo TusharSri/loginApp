@@ -1,17 +1,31 @@
 package com.example.apple.amazon.Activity;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.apple.amazon.R;
+import com.example.apple.amazon.Utils.SymmetricProgressBar;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -29,13 +43,22 @@ public class LoginActivity extends AppCompatActivity {
     EditText passwordEditText;
     @BindView(R.id.forgot_pass_textview)
     TextView forgotPasswordTextView;
+    @BindView(R.id.dont_have_accout_textview)
+    TextView dontHaveAccount;
     @BindView(R.id.sign_in_button)
     Button signInButton;
     @BindView(R.id.sign_up_button)
     Button SignUpButton;
+    @BindView(R.id.relative_container)
+    RelativeLayout relativeContainer;
+    @BindView(R.id.icon_imageview)
+    ImageView iconImageview;
 
     private ProgressDialog progressDialog;
     private FirebaseAuth auth;
+    Animation zoomIn;
+    Animation zoomOut;
+    int RC_SIGN_IN = 1221;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +68,61 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Please Wait");
         auth = FirebaseAuth.getInstance();
+
+        final SymmetricProgressBar progressBar = new SymmetricProgressBar(this);
+
+        ((ViewGroup) this.findViewById(android.R.id.content)).addView(progressBar, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 8));
+
+        progressBar.startAnimation();
+
+        Animation bottomUp = AnimationUtils.loadAnimation(this, R.anim.animate_login);
+        relativeContainer.setAnimation(bottomUp);
+
+        zoomIn = AnimationUtils.loadAnimation(this, R.anim.zoomin);
+        zoomOut = AnimationUtils.loadAnimation(this, R.anim.zoomout);
+
+/*        iconImageview.startAnimation(zoomIn);
+        zoomIn.setAnimationListener(new Animation.AnimationListener() {
+
+            @Override
+            public void onAnimationStart(Animation arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation arg0) {
+                iconImageview.startAnimation(zoomOut);
+
+            }
+        });
+
+        zoomOut.setAnimationListener(new Animation.AnimationListener() {
+
+            @Override
+            public void onAnimationStart(Animation arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation arg0) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation arg0) {
+                iconImageview.startAnimation(zoomIn);
+
+            }
+        });*/
 
     }
 
@@ -88,7 +166,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void userSignUp() {
-        String email = emailEditText.getText().toString();
+        final String email = emailEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
         if (TextUtils.isEmpty(email)) {
@@ -119,6 +197,15 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Authentication failed." + task.getException(),
                                     Toast.LENGTH_SHORT).show();
                         } else {
+                            String name = auth.getCurrentUser().getDisplayName();
+                            Uri photoUrl = auth.getCurrentUser().getPhotoUrl();
+
+                            SharedPreferences.Editor editor = getSharedPreferences("User_Data", MODE_PRIVATE).edit();
+                            editor.putString("name", name);
+                            editor.putString("url", photoUrl.toString());
+                            editor.putString("email", email);
+                            editor.apply();
+
                             startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
                             finish();
                         }
@@ -164,5 +251,54 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (null != auth.getCurrentUser()) {
+            startActivity(new Intent(this, DashboardActivity.class));
+            finish();
+        }
+    }
+
+    @OnClick(R.id.dont_have_accout_textview)
+    public void googleLogin() {
+        GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+// Build a GoogleApiClient with access to GoogleSignIn.API and the options above.
+        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(LoginActivity.this, null)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, options)
+                .build();
+
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+// Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(…);
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            if (result.isSuccess()) {
+// Google Sign In was successful, save Token and a state then authenticate with Firebase
+                GoogleSignInAccount account = result.getSignInAccount();
+
+                SharedPreferences.Editor editor = getSharedPreferences("User_Data", MODE_PRIVATE).edit();
+                editor.putString("name", account.getDisplayName());
+                editor.putString("url", account.getPhotoUrl().toString());
+                editor.putString("email", account.getEmail());
+                editor.apply();
+                startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
+                finish();
+
+            } else {
+                Toast.makeText(this, "Login Unsuccessful", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

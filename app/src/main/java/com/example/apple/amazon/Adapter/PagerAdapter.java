@@ -1,4 +1,4 @@
-package com.example.apple.amazon.Utils;
+package com.example.apple.amazon.Adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -10,10 +10,15 @@ import com.example.apple.amazon.Fragments.ShopFragment;
 
 public class PagerAdapter extends FragmentStatePagerAdapter {
     int mNumOfTabs;
-
+    private String[] tabTitles = new String[]{"Category", "Shop", "Activity"};
     public PagerAdapter(FragmentManager fm, int NumOfTabs) {
         super(fm);
         this.mNumOfTabs = NumOfTabs;
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return tabTitles[position];
     }
 
     @Override
